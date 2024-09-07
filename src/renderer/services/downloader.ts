@@ -6,9 +6,11 @@ const { ipcRenderer } = require('electron');
 import { Chapter, PageRequesterData, Series } from '@tiyo/common';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import JSZip from 'jszip';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { IconCheck, IconPlayerPause } from '@tabler/icons';
 import ipcChannels from '@/common/constants/ipcChannels.json';
+import { saveDownloadAsCBZState } from '@/renderer/state/settingStates';
 
 export type DownloadTask = {
   chapter: Chapter;
@@ -95,6 +97,28 @@ class DownloaderClient {
     this.setRunning(false);
     this.setCurrentTask(null);
     this.setDownloadErrors([...this.downloadErrors, downloadError]);
+  };
+
+  _convertToCBZ = async (chapterPath: string) => {
+    await new Promise((resolve) => {
+      const cbzFile = new JSZip();
+
+      const files = fs.readdirSync(chapterPath);
+      for (const file of files) {
+        cbzFile.file(file, fs.createReadStream(`${chapterPath}\\${file}`));
+      }
+
+      const folderParts = chapterPath.split('\\');
+      const fileName = folderParts.pop();
+      const folderPath = folderParts.join('\\');
+
+      cbzFile
+        .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+        .pipe(fs.createWriteStream(`${folderPath}\\${fileName}.cbz`, { flags: 'w' }))
+        .on('finish', resolve);
+    });
+
+    fs.rmSync(chapterPath, { recursive: true, force: true });
   };
 
   start = async () => {
@@ -199,6 +223,7 @@ class DownloaderClient {
         // task was paused, add it back to the start of the queue
         this.setQueue([{ ...task, page: i, totalPages: pageUrls.length }, ...this.queue]);
       } else {
+        if (saveDownloadAsCBZState) await this._convertToCBZ(chapterPath);
         tasksCompleted += 1;
       }
     }
