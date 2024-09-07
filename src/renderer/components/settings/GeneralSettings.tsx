@@ -25,6 +25,7 @@ import {
   customDownloadsDirState,
   libraryCropCoversState,
   refreshOnStartState,
+  saveDownloadAsCBZState,
 } from '@/renderer/state/settingStates';
 
 const languageOptions = Object.values(Languages)
@@ -45,6 +46,7 @@ const GeneralSettings: React.FC<Props> = () => {
   const [confirmRemoveSeries, setConfirmRemoveSeries] = useRecoilState(confirmRemoveSeriesState);
   const [libraryCropCovers, setLibraryCropCovers] = useRecoilState(libraryCropCoversState);
   const [customDownloadsDir, setCustomDownloadsDir] = useRecoilState(customDownloadsDirState);
+  const [saveDownloadAsCBZ, setSaveDownloadAsCBZ] = useRecoilState(saveDownloadAsCBZState);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateGeneralSetting = (generalSetting: GeneralSetting, value: any) => {
@@ -66,6 +68,9 @@ const GeneralSettings: React.FC<Props> = () => {
         break;
       case GeneralSetting.CustomDownloadsDir:
         setCustomDownloadsDir(value);
+        break;
+      case GeneralSetting.SaveDownloadAsCBZ:
+        setSaveDownloadAsCBZ(value);
         break;
       case GeneralSetting.autoBackup:
         setAutoBackup(value);
@@ -138,6 +143,12 @@ const GeneralSettings: React.FC<Props> = () => {
           size="md"
           checked={libraryCropCovers}
           onChange={(e) => updateGeneralSetting(GeneralSetting.LibraryCropCovers, e.target.checked)}
+        />
+        <Checkbox
+          label="Save chapter in CBZ format"
+          size="md"
+          checked={saveDownloadAsCBZ}
+          onChange={(e) => updateGeneralSetting(GeneralSetting.SaveDownloadAsCBZ, e.target.checked)}
         />
         <MultiSelect
           label="Chapter languages"

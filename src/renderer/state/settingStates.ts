@@ -61,6 +61,7 @@ export const autoBackupState = atomFromSetting<boolean>(GeneralSetting.autoBacku
 export const autoBackupCountState = atomFromSetting<number>(GeneralSetting.autoBackupCount);
 export const confirmRemoveSeriesState = atomFromSetting<boolean>(GeneralSetting.ConfirmRemoveSeries);
 export const customDownloadsDirState = atomFromSetting<string>(GeneralSetting.CustomDownloadsDir);
+export const saveDownloadAsCBZState = atomFromSetting<boolean>(GeneralSetting.SaveDownloadAsCBZ);
 export const libraryColumnsState = atomFromSetting<number>(GeneralSetting.LibraryColumns);
 export const libraryViewState = atomFromSetting<LibraryView>(GeneralSetting.LibraryView);
 export const librarySortState = atomFromSetting<LibrarySort>(GeneralSetting.LibrarySort);
