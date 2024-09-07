@@ -10,7 +10,9 @@ import JSZip from 'jszip';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { IconCheck, IconPlayerPause } from '@tabler/icons';
 import ipcChannels from '@/common/constants/ipcChannels.json';
-import { saveDownloadAsCBZState } from '@/renderer/state/settingStates';
+import { GeneralSetting } from '@/common/models/types';
+import persistantStore from '@/renderer/util/persistantStore';
+import storeKeys from '@/common/constants/storeKeys.json';
 
 export type DownloadTask = {
   chapter: Chapter;
@@ -223,7 +225,12 @@ class DownloaderClient {
         // task was paused, add it back to the start of the queue
         this.setQueue([{ ...task, page: i, totalPages: pageUrls.length }, ...this.queue]);
       } else {
-        if (saveDownloadAsCBZState) await this._convertToCBZ(chapterPath);
+        const saveDownloadAsCBZ = persistantStore.read(
+          storeKeys.SETTINGS.GENERAL_PREFIX + GeneralSetting.SaveDownloadAsCBZ,
+        );
+
+        if (saveDownloadAsCBZ === 'true') await this._convertToCBZ(chapterPath);
+
         tasksCompleted += 1;
       }
     }
