@@ -16,8 +16,13 @@ import { downloaderClient, DownloadTask } from '@/renderer/services/downloader';
 import { markChapters } from '@/renderer/features/library/utils';
 import routes from '@/common/constants/routes.json';
 import ipcChannels from '@/common/constants/ipcChannels.json';
-import { chapterListState, seriesState } from '@/renderer/state/libraryStates';
+import {
+  chapterListState,
+  seriesState,
+  chapterDownloadStatusesState,
+} from '@/renderer/state/libraryStates';
 import { chapterLanguagesState, customDownloadsDirState } from '@/renderer/state/settingStates';
+import { FS_METADATA } from '@/common/temp_fs_metadata';
 
 const defaultDownloadsDir = await ipcRenderer.invoke(ipcChannels.GET_PATH.DEFAULT_DOWNLOADS_DIR);
 
@@ -40,6 +45,7 @@ const ChapterTableContextMenu: React.FC<Props> = (props: Props) => {
   const setSeries = useSetRecoilState(seriesState);
   const customDownloadsDir = useRecoilValue(customDownloadsDirState);
   const chapterLanguages = useRecoilValue(chapterLanguagesState);
+  const chapterDownloadStatuses = useRecoilValue(chapterDownloadStatusesState);
   const [previousChapters, setPreviousChapters] = useState<Chapter[]>([]);
   const [sanitizedPos, setSanitizedPos] = useState<{ x: number; y: number }>(props.position);
 
@@ -163,9 +169,12 @@ const ChapterTableContextMenu: React.FC<Props> = (props: Props) => {
             </Menu.Item>
           )}
 
-          <Menu.Item leftSection={<IconDownload size={14} />} onClick={handleDownload}>
-            Download
-          </Menu.Item>
+          {!chapterDownloadStatuses[props.chapter.id!] &&
+            props.series.extensionId !== FS_METADATA.id && (
+              <Menu.Item leftSection={<IconDownload size={14} />} onClick={handleDownload}>
+                Download
+              </Menu.Item>
+            )}
         </Menu.Dropdown>
       </Menu>
     </Portal>
