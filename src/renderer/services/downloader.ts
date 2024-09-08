@@ -106,9 +106,9 @@ class DownloaderClient {
       const cbzFile = new JSZip();
 
       const files = fs.readdirSync(chapterPath);
-      for (const file of files) {
+      files.sort().forEach((file: string) => {
         cbzFile.file(file, fs.createReadStream(`${chapterPath}\\${file}`));
-      }
+      });
 
       const folderParts = chapterPath.split('\\');
       const fileName = folderParts.pop();
@@ -154,6 +154,8 @@ class DownloaderClient {
         task.chapter,
         task.downloadsDir,
       );
+      // fix issue where if you saved a chapter in cbz before and redownload chapter it breaks app
+      // tries to save 01.png to ./title/chapter.cbz/01.png
       if (!fs.existsSync(chapterPath)) {
         fs.mkdirSync(chapterPath, { recursive: true });
       }
